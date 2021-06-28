@@ -16,6 +16,135 @@
 <script type="text/javascript" src="js/atooltip.jquery.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 
+<script>
+	$(document).ready(function(){
+		$.get("https://melika-brkic.herokuapp.com/api/flights/", (data, status) => {
+				data.flights.forEach((item, index) =>{
+					$('#flights').append(`<tr>
+						<td>${item.to}</td>
+						<td>${item.from}</td>
+						<td>${item.start_date}</td>
+						<td>${item.return_date}</td>
+						<td>${item.adults}</td>
+						<td>${item.child}</td>
+						<td>
+							<div class="row">
+								<button type="button" class="btn btn-success"  value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+								<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
+							</div>
+						</td>
+						</tr>`);
+				});
+		});
+		$("#btnSubmit").click(function(){
+		
+			event.preventDefault();
+			let to = $("input[name='to']").val();
+			let from = $("input[name='from']").val();
+			let start = $("input[name='start']").val();
+			let return_date =$("input[name='return']").val();
+			let child= $("input[name='child']").val();
+			let adults = $("input[name='adults']").val();
+			$.post("https://melika-brkic.herokuapp.com/api/book-flight/",
+				{
+				to: to,
+				from: from,
+				return: return_date,
+				start: start,
+				child: child,
+				adults: adults
+				},
+				function(){
+					$.get("https://melika-brkic.herokuapp.com/api/flights/", (data, status) => {
+						data.flights.forEach((item, index) =>{
+							$('#flights').append(`<tr>
+								<td>${item.to}</td>
+								<td>${item.from}</td>
+								<td>${item.start_date}</td>
+								<td>${item.return_date}</td>
+								<td>${item.adults}</td>
+								<td>${item.child}</td>
+								<td>
+									<div class="row">
+										<button type="button" class="btn btn-success" value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+										<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
+									</div>
+								</td>
+								</tr>`
+							);
+						})
+					});
+					var form = document.getElementById("myForm");
+					form.reset();
+				});
+			});
+			$("#editSubmit").click(function(){
+		
+		event.preventDefault();
+		let to = $("input[name='to-edit']").val();
+		let from = $("input[name='from-edit']").val();
+		let start = $("input[name='start-edit']").val();
+		let return_date =$("input[name='return-edit']").val();
+		let child= $("input[name='child-edit']").val();
+		let adults = $("input[name='adults-edit']").val();
+		let id = $("input[name='id-edit']").val();
+		$.post("https://melika-brkic.herokuapp.com/api/update-flight/",
+		{
+		  to: to,
+		  from: from,
+		  return: return_date,
+		  start: start,
+		  child: child,
+		  adults: adults,
+		  flight_id: id
+		},
+		function(){
+			$.get("https://melika-brkic.herokuapp.com/api/flights/", (data, status) => {
+				data.flights.forEach((item, index) =>{
+					$('#flights').append(`<tr>
+						<td>${item.to}</td>
+						<td>${item.from}</td>
+						<td>${item.start_date}</td>
+						<td>${item.return_date}</td>
+						<td>${item.adults}</td>
+						<td>${item.child}</td>
+						<td>
+							<div class="row">
+								<button type="button" class="btn btn-success" value=${item.id} data-toggle="modal" data-target="#exampleModal" onclick="dosomething(this.value)">Edit</button>
+								<button type="button" class="btn btn-danger" value=${item.id} onclick="delete_endpoint(this.value)">Delete</button>
+							</div>
+						  </td>
+						</tr>`);
+				})	
+			});
+			location.reload(true);
+		});
+	  });
+	});
+	function dosomething(value){
+		$.post("https://melika-brkic.herokuapp.com/api/flight-data/", {flight_id:value}, (data, status)=>{
+			$("input[name='to-edit']").val(data.to)
+			$("input[name='from-edit']").val(data.from)
+			$("input[name='start-edit']").val(data.start_date)
+			$("input[name='return-edit']").val(data.return_date)
+			$("input[name='adults-edit']").val(data.adults)
+			$("input[name='child-edit']").val(data.child)
+			$("input[name='id-edit']").val(data.id)
+		})
+		
+	};
+	$('#myModal').on('shown.bs.modal', function () {
+		  $('#myInput').trigger('focus')
+	});
+
+	function delete_endpoint(value){
+		$.post("https://melika-brkic.herokuapp.com/api/delete-flight/", {flight_id:value}, (data, status)=>{
+			console.log(status)
+			location.reload(true);
+		}); 
+	};
+
+</script>
 </head>
 <body id="page3">
 <div class="main">
@@ -240,10 +369,6 @@
 														</div>
 													</div>
 													<div class="cols">
-														<div class="select1"><span class="left">Class</span><select><option>Economy</option></select>
-															<a href="#" class="help"></a>
-														</div>
-														<
 													</div>
 													<span class="right relative"><a href="#" class="button1" onClick="document.getElementById('form_5').submit()"><strong>Search</strong></a></span>
 												</div>
@@ -274,24 +399,7 @@
 															<a href="#" class="help"></a>
 														</div>
 													</div>
-													<div class="check_box">
-														<input type="checkbox">
-														<span>One way</span>
-														<a href="#" class="help"></a>
-													</div>
-													<div class="check_box">
-														<input type="checkbox">
-														<span>Direct flights</span>
-													</div>
-												</div>
-												<div class="wrapper under">
-													<span class="left">Flights</span>
-													<div class="cols marg_right1">
-														<h6>Outbound flight</h6>
-														<div class="row">
-															<input type="text" class="input1" value="03.05.2011"  onblur="if(this.value=='') this.value='03.05.2011'" onFocus="if(this.value =='03.05.2011' ) this.value=''">
-															<input type="text" class="input1" value="+/- 0 Days"  onblur="if(this.value=='') this.value='+/- 0 Days'" onFocus="if(this.value =='+/- 0 Days' ) this.value=''">
-														</div>
+													
 														<div class="marg_top1">
 															<div class="select1">
 															<a href="#" class="marker_left"></a>
